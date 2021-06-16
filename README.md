@@ -49,7 +49,8 @@ server에서는 client가 server에 접속하면 접속한 IP주소만 출력하
 #include<time.h>
 
 #define BUF_SIZE 100
-#define MAX_CLNT 256
+#define MAX_CLNT 100
+#define BUFFER_LEN 100
 
 void * handle_clnt(void * arg);
 void send_msg(char * msg, int len);
@@ -67,7 +68,9 @@ int main(int argc, char *argv[])
     struct sockaddr_in serv_adr, clnt_adr;
     int clnt_adr_sz;
     pthread_t t_id;
-
+    
+    char buffer[BUFFER_LEN];
+    
     /** time log **/
     struct tm *t;
     time_t timer = time(NULL);
@@ -106,6 +109,10 @@ int main(int argc, char *argv[])
 
         read(clnt_sock, namechk, BUF_SIZE-1);
         printf("Connected client IP: %s \n %s 님이 접속하셨습니다.\n", inet_ntoa(clnt_adr.sin_addr), namechk);
+        char buffer[BUFFER_LEN] = {0};
+        sprintf(buffer, "%s 님이 접속하셨습니다.\n", namechk);
+        write(clnt_sock, buffer, strlen(buffer));
+
         printf("(%d-%d-%d %d:%d)\n", t->tm_year+1900, t->tm_mon+1, t->tm_mday, t->tm_hour, t->tm_min);
         printf(" 참여자 (%d/100)\n", clnt_cnt);
 
@@ -171,6 +178,7 @@ void error_handling(char * msg)
 
 #define BUF_SIZE 100
 #define NAME_SIZE 20
+#define BUFFER_LEN 100
 
 void * send_msg(void * arg);
 void * recv_msg(void * arg);
@@ -206,6 +214,12 @@ int main(int argc, char *argv[])
         error_handling("connect() error");
 
     write(sock, namechk, strlen(namechk));
+    
+    char buffer[BUFFER_LEN];
+    int n = read(sock, buffer, BUFFER_LEN);
+    buffer[n] = '\0';
+    fputs(buffer, stdout);
+    
     pthread_create(&snd_thread, NULL, send_msg, (void*)&sock);
     pthread_create(&rcv_thread, NULL, recv_msg, (void*)&sock);
     pthread_join(snd_thread, &thread_return);
