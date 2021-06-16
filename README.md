@@ -38,7 +38,8 @@ int main(int argc, char *argv[])
     time_t timer = time(NULL);
     t=localtime(&timer);
 
-    if(argc!=2) {
+    if(argc!=2) 
+   {
         printf("Usage : %s <port>\n", argv[0]);
         exit(1);
     }
