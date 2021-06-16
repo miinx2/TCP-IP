@@ -60,7 +60,7 @@ char namechk[BUF_SIZE] = "[DEFAULT]";
 
 int clnt_cnt=0;
 int clnt_socks[MAX_CLNT];
-pthread_mutex_t mutx;
+pthread_mutex_t mutx;               // 뮤텍스 생성을 위해 변수 선언
 
 int main(int argc, char *argv[])
 {
@@ -82,17 +82,17 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    pthread_mutex_init(&mutx, NULL);
-    serv_sock=socket(PF_INET, SOCK_STREAM, 0);
+    pthread_mutex_init(&mutx, NULL);                //뮤텍스 함수 초기화
+    serv_sock=socket(PF_INET, SOCK_STREAM, 0);      // 소켓 생성
 
-    memset(&serv_adr, 0, sizeof(serv_adr));
+    memset(&serv_adr, 0, sizeof(serv_adr));         // 구조체 변수 초기화
     serv_adr.sin_family=AF_INET;
     serv_adr.sin_addr.s_addr=htonl(INADDR_ANY);
     serv_adr.sin_port=htons(atoi(argv[1]));
 
-    if(bind(serv_sock, (struct sockaddr*) &serv_adr, sizeof(serv_adr))==-1)
+    if(bind(serv_sock, (struct sockaddr*) &serv_adr, sizeof(serv_adr))==-1)     // bind함수 호출
         error_handling("bind() error");
-    if(listen(serv_sock, 5)==-1)
+    if(listen(serv_sock, 5)==-1)                                // 연결 요청
         error_handling("listen() error");
 
     while(1)
@@ -100,16 +100,17 @@ int main(int argc, char *argv[])
         clnt_adr_sz=sizeof(clnt_adr);
         clnt_sock=accept(serv_sock, (struct sockaddr*)&clnt_adr,&clnt_adr_sz);
 
-        pthread_mutex_lock(&mutx);
+        pthread_mutex_lock(&mutx);                // 임계영역의 시작
         clnt_socks[clnt_cnt++]=clnt_sock;
-        pthread_mutex_unlock(&mutx);
+        pthread_mutex_unlock(&mutx);              // 임계영역의 
 
-        pthread_create(&t_id, NULL, handle_clnt, (void*)&clnt_sock);
-        pthread_detach(t_id);
+        pthread_create(&t_id, NULL, handle_clnt, (void*)&clnt_sock);        //쓰레드 생성
+        pthread_detach(t_id);                                               //쓰레드 분리
 
         read(clnt_sock, namechk, BUF_SIZE-1);
         printf("Connected client IP: %s \n %s 님이 접속하셨습니다.\n", inet_ntoa(clnt_adr.sin_addr), namechk);
-        char buffer[BUFFER_LEN] = {0};
+        
+        char buffer[BUFFER_LEN] = {0};                          // 접속시 입력되는 
         sprintf(buffer, "%s 님이 접속하셨습니다.\n", namechk);
         write(clnt_sock, buffer, strlen(buffer));
 
@@ -145,11 +146,11 @@ void * handle_clnt(void * arg)
     close(clnt_sock);
     return NULL;
 }
-void send_msg(char * msg, int len)   // send to all
+void send_msg(char * msg, int len)   // 클라이언트에서 받은 메세지를 다시 클라이언트에 보내는 기능
 {
     int i;
     pthread_mutex_lock(&mutx);
-    /*if ( strstr(msg, "씨발") != NULL)
+    /*if ( strstr(msg, "씨발") != NULL)       // 필터링 기능 구현코드 
             msg = "####\n";
     else
             msg = msg;*/
@@ -157,7 +158,8 @@ void send_msg(char * msg, int len)   // send to all
         write(clnt_socks[i], msg, len);
     pthread_mutex_unlock(&mutx);
 }
-void error_handling(char * msg)
+                         
+void error_handling(char * msg)  // 
 {
     fputs(msg, stderr);
     fputc('\n', stderr);
@@ -220,10 +222,10 @@ int main(int argc, char *argv[])
     buffer[n] = '\0';
     fputs(buffer, stdout);
     
-    pthread_create(&snd_thread, NULL, send_msg, (void*)&sock);
-    pthread_create(&rcv_thread, NULL, recv_msg, (void*)&sock);
-    pthread_join(snd_thread, &thread_return);
-    pthread_join(rcv_thread, &thread_return);
+    pthread_create(&snd_thread, NULL, send_msg, (void*)&sock);      // send쓰레드 생성
+    pthread_create(&rcv_thread, NULL, recv_msg, (void*)&sock);      // recv 쓰레드 생성
+    pthread_join(snd_thread, &thread_return);                       // send쓰레드가 종료하기를 기다렸다가, 종료된 후 다음 진행 
+    pthread_join(rcv_thread, &thread_return);                       // recv쓰레드가 종료하기를 기다렸다가, 종료된 후 다음 진행
     close(sock);
     return 0;
 }
@@ -243,8 +245,8 @@ void * send_msg(void * arg)   // send thread main
         }
         sprintf(name_msg,"%s %s", name, msg);
         write(sock, name_msg, strlen(name_msg));
-        flag = 1;
-    }
+        flag = 1;                                   // 자신이 msg를 입력했을 경우 굳이 다시 받을 필요가 없기 때문에 flag변수를 이용하여
+    }                                               // flag가 0이면 메세지를 수신하고 1일 경우에는 받지않게 코드를 추가
     return NULL;
 }
 
@@ -260,11 +262,11 @@ void * recv_msg(void * arg)   // read thread main
             if(str_len==-1)
                 return (void*)-1;
             name_msg[str_len]=0;
-            if (flag==1){
-                flag = 0;
+            if (flag==1){               // flag 변수를 주고 초기 flag값은 0이며 flag가 1이면 flag를 0으로 초기화 한 후 continue를 하게 된다
+                flag = 0;               
                 continue;
             }
-            fputs(name_msg, stdout);
+            fputs(name_msg, stdout);    // flag가 1이 아닐경우 0이므로 그대로 출력하게 된다.
 
     }
     return NULL;
