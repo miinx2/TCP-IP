@@ -269,6 +269,6 @@ void error_handling(char *msg)
     
     
   <img width="" height="" src="./png/201744008_이민재A_server.png"></img>
-  <img width="" height="" src="./png/201744008_이민재A_client1.png"></img>
-  <img width="" height="" src="./png/201744008_이민재A_client2.png"></img>
+  <img width="" height="" src="./png/201744008_이민재A_client_1.png"></img>
+  <img width="" height="" src="./png/201744008_이민재A_client_2.png"></img>
   
