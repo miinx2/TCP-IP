@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
         read(clnt_sock, namechk, BUF_SIZE-1);
         printf("Connected client IP: %s \n %s 님이 접속하셨습니다.\n", inet_ntoa(clnt_adr.sin_addr), namechk);
         
-        char buffer[BUFFER_LEN] = {0};                          // 접속시 입력되는 
+        char buffer[BUFFER_LEN] = {0};                          // 접속시 입력되는 메세지
         sprintf(buffer, "%s 님이 접속하셨습니다.\n", namechk);
         write(clnt_sock, buffer, strlen(buffer));
 
