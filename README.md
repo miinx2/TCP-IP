@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 
         pthread_mutex_lock(&mutx);                // 임계영역의 시작
         clnt_socks[clnt_cnt++]=clnt_sock;
-        pthread_mutex_unlock(&mutx);              // 임계영역의 
+        pthread_mutex_unlock(&mutx);              // 임계영역의 끝
 
         pthread_create(&t_id, NULL, handle_clnt, (void*)&clnt_sock);        //쓰레드 생성
         pthread_detach(t_id);                                               //쓰레드 분리
